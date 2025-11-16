@@ -1,31 +1,36 @@
 import mongoose, { Schema } from "mongoose";
 
-const userSchema = new Schema({
+const userSchema = new Schema(
+  {
     email: {
-        type: String,
-        unique: true,
-        required: true,
+      type: String,
+      unique: true,
+      required: true,
     },
 
     fullname: {
-        type: String, 
-        required:true,
+      type: String,
+      required: true,
     },
 
     password: {
-        required: true,
-        type: String,
-        minlength: 8,
+      required: true,
+      type: String,
+      minlength: 8,
     },
 
     profilePic: {
-        type: String,
-        default:""
-    }
-
-},
-    { timestamps :true}
-)
+      type: String,
+      default: "",
+        },
+    
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
 
 const User = mongoose.model('User', userSchema);

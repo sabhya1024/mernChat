@@ -9,12 +9,12 @@ import connectDB from "./lib/db.js"
 import authRoutes from "./routes/auth.route.js"
 import messageRoutes from "./routes/message.route.js"
 
+import {app, server} from './lib/socket.js'
 dotenv.config()
 
 const PORT = process.env.PORT
 
 
-const app = express();
 app.use(helmet());
 
 app.use(
@@ -29,8 +29,18 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes)
 app.use("/api/messages", messageRoutes)
 
-connectDB().then(
-    app.listen(PORT, () => {
-        console.log(`Server started on ${PORT} `);
+const startSever = async () => {
+  try {
+    await connectDB();
+
+    server.listen(PORT, () => {
+      console.log(`Server started on port ${PORT}`);
     })
-)
+  }
+  catch (error) {
+    console.log('Failed to connect to DB. serverr not started ', error)
+    process.exit(1);
+  }
+}
+
+startSever();

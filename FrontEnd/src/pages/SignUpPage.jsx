@@ -53,7 +53,7 @@ const SignUpPage = () => {
     e.preventDefault();
     const success = validateForm()
     if (success === true) {
-      signup(formData);
+      await signup(formData);
     }
 
   };
@@ -91,7 +91,7 @@ const SignUpPage = () => {
                 </div>
 
                 <input type="text"
-                  className={`input input-bordered w-full pl-15`}
+                  className={`input input-bordered w-full pl-10`}
                   placeholder='Enter your full name'
                   value={formData.fullname}
                   onChange={(e) => setFormData({...formData, fullname:e.target.value})}
@@ -113,7 +113,7 @@ const SignUpPage = () => {
                 </div>
 
                 <input type="text"
-                  className={`input input-bordered w-full pl-15`}
+                  className={`input input-bordered w-full pl-10`}
                   placeholder='Enter you email '
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email:e.target.value})}
@@ -134,7 +134,7 @@ const SignUpPage = () => {
                 </div>
 
                 <input type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pl-15`}
+                  className={`input input-bordered w-full pl-10`}
                   placeholder='********* '
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password:e.target.value})}
@@ -143,7 +143,7 @@ const SignUpPage = () => {
                 <button type="button" className="absolute inset-y-0 right-0 pr-3 flex items-center" onClick={() => {
                   setShowPassword(!showPassword)
                 }}>
-                  {showPassword ? (<EyeOff className='size-5 text-baes-content/40 z-10' />) : (<Eye className='size-5 text-base-content/40 z-10'/>)}
+                  {showPassword ? (<EyeOff className='size-5 text-base-content/40 z-10' />) : (<Eye className='size-5 text-base-content/40 z-10'/>)}
 
 
                 </button>

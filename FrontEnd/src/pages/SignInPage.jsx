@@ -6,8 +6,7 @@ import { MessageSquare, Mail, Lock, Eye, EyeOff , Loader2} from 'lucide-react';
 import {toast} from 'react-hot-toast'
 
 const SignInPage = () => {
-   const passwordRegex =
-     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+   
    const emailRegex = /\S+@\S+\.\S+/;
 
 

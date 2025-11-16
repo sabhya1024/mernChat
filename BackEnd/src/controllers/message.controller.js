@@ -3,6 +3,7 @@ import Message from "../models/Message.js"
 
 import cloudinary from "../lib/cloudinary.js";
 import { fileTypeFromBuffer } from "file-type";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 
 export const getUsersForSidebar = async (req, res) => {
     try {
@@ -83,6 +84,11 @@ export const sendMessage = async (req, res) => {
       await newMessage.save();
 
       // realtime functionality ---- socket.io
+      const receiverSocketId = getReceiverSocketId(receiverId)
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("New Message", newMessage)
+      }
+
 
       res.status(201).json(newMessage);
     }

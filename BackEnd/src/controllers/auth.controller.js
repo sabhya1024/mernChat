@@ -1,8 +1,9 @@
 import argon2 from "argon2";
 
-import { generateToken } from "../lib/utils.js";
+import { generateToken, sendVerificationEmail } from "../lib/utils.js";
 import User from "../models/User.js";
 import cloudinary from "../lib/cloudinary.js";
+import jwt from 'jsonwebtoken'
 
 import { fileTypeFromBuffer } from "file-type";
 
@@ -36,18 +37,26 @@ export const signup = async (req, res) => {
       fullname: fullname,
       email: email,
       password: hashedPassword,
+      isVerified:false
     });
 
     //generating jwt token
-    const token = generateToken(newUser._id, res);
     await newUser.save();
 
+    const verificationToken = jwt.sign(
+      { userId: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" } 
+    );
+
+    await sendVerificationEmail(newUser.email, verificationToken);
+
     res.status(201).json({
-      _id: newUser._id,
-      fullname: newUser.fullname,
-      email: newUser.email,
-      profilePic: newUser.profilePic,
+      message:
+        "Account created successfully. Please check your email to verify your account.",
     });
+
+    
   } catch (error) {
     console.log(`Error is signup controller . try again. ${error}`);
     return res.status(500).json({ message: "Internal Server Error." });
@@ -69,6 +78,24 @@ export const signin = async (req, res) => {
         error: "Invalid email or password",
       });
     }
+
+   if (!user.isVerified) {
+     // Create a new 1-hour token
+     const verificationToken = jwt.sign(
+       { userId: user._id },
+       process.env.JWT_SECRET,
+       { expiresIn: "1h" }
+     );
+
+     // Send the new verification email
+     await sendVerificationEmail(user.email, verificationToken);
+
+     // Send a helpful error message
+     return res.status(401).json({
+       error:
+         "Your account is not verified. A new verification email has been sent to your inbox.",
+     });
+   }
 
     generateToken(user._id, res);
     res.status(200).json({
@@ -148,3 +175,46 @@ export const checkAuth = async (req, res) => {
         res.status(500).json({messaage:"Internal server error. "})
     }
 }
+
+export const verifyEmail = async (req, res) => {
+  try {
+  const { token } = req.params;
+
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.userId) {
+      return res.status(400).json({ message: "Invalid verification token." });
+    }
+
+    //find the user
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (user.isVerified) {
+      generateToken(user._id, res);
+      return res.redirect(process.env.FRONTEND_URL); 
+    }
+
+    user.isVerified = true;
+    await user.save();
+
+    generateToken(user._id, res);
+
+    
+    res.redirect(process.env.FRONTEND_URL); 
+
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      // later : redirect to a frontend page: res.redirect("http://localhost:5173/link-expired")
+      return res.status(400).json({ message: "Verification link expired. Please sign up again." });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ message: "Invalid verification token." });
+    }
+    
+    console.log("Error in verifyEmail controller: ", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

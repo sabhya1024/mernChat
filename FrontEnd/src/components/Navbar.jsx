@@ -38,7 +38,6 @@ const Navbar = () => {
                 </Link>
 
                 <button
-                  to={'/logout'}
                   className={`flex gap-2 items-center`}
                   onClick={logout}
                 >

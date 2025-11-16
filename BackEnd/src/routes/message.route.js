@@ -1,13 +1,10 @@
 import express from 'express'
-import dotenv from 'dotenv'
-import multer from 'multer'
 
 
 import {upload} from '../lib/multer.js'
 import { protectRoute } from '../middleware/auth.middleware.js';
 import { getUsersForSidebar, getMessages, sendMessage } from '../controllers/message.controller.js';
 
-dotenv.config();
 
 
 const router = express.Router();

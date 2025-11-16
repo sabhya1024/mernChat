@@ -20,11 +20,12 @@ const App = () => {
   const { theme } = useThemeStore();
  
   
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
+  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore()
+  
 
   useEffect(() => {
-    document.documentElement.setAttribute("chat-theme", theme);
-  }, [{ theme }]);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [ theme ]);
 
   useEffect(() => {
     checkAuth();
@@ -41,7 +42,7 @@ const App = () => {
   }
 
   return (
-    <div data-theme={theme}>
+    <div>
       <Navbar></Navbar>
       <Toaster />
       <Routes>
