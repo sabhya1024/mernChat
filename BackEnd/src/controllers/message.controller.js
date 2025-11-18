@@ -1,9 +1,15 @@
 import User from "../models/User.js";
 import Message from "../models/Message.js"
 
+import { JSDOM } from 'jsdom'
+import createDOMPurify from 'dompurify'
 import cloudinary from "../lib/cloudinary.js";
 import { fileTypeFromBuffer } from "file-type";
 import { getReceiverSocketId, io } from "../lib/socket.js";
+
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window)
+
 
 export const getUsersForSidebar = async (req, res) => {
     try {
@@ -50,6 +56,11 @@ export const sendMessage = async (req, res) => {
 
       let imageUrl;
 
+      let cleanText = text;
+      if (text) {
+        cleanText = DOMPurify.sanitize(text.trim());
+      }
+
       if (req.file) {
         const fileType = await fileTypeFromBuffer(req.file.buffer);
         const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
@@ -67,7 +78,7 @@ export const sendMessage = async (req, res) => {
         imageUrl = uploadResponse.secure_url;
       }
 
-      if (!text && !imageUrl) {
+      if (!cleanText && !imageUrl) {
         return res
           .status(400)
           .json({ error: "Message must contain text or an image." });
@@ -77,7 +88,7 @@ export const sendMessage = async (req, res) => {
       const newMessage = new Message({
         senderId,
         receiverId,
-        text,
+        text:cleanText,
         image: imageUrl,
       });
 
