@@ -12,7 +12,7 @@ import messageRoutes from "./routes/message.route.js"
 import {app, server} from './lib/socket.js'
 dotenv.config()
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3000
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
